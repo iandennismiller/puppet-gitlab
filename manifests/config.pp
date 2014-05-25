@@ -60,11 +60,14 @@ class gitlab::config inherits gitlab {
   }
   
   # Execute rake backup every night at 2 am
+  $cmd_full_backup = "bundle exec rake gitlab:backup:create RAILS_ENV=production"
+  $cmd_lite_backup = "mysqldump gitlabdb > ~/gitlabdb.sql.txt"
+  $cmd_backup = $cmd_lite_backup
   cron { logrotate:
-    command => "cd /home/git/gitlab && PATH=/usr/local/bin:/usr/bin:/bin bundle exec rake gitlab:backup:create RAILS_ENV=production",
+    command => "cd /home/git/gitlab && PATH=/usr/local/bin:/usr/bin:/bin ${cmd_backup}",
     user    => git,
-    hour    => 2,
-    minute  => 0,
+    hour    => 0,
+    minute  => 1,
     require => File["${gitlab::git_home}/gitlab/${gitlab::backup_path}"],
   }
 
